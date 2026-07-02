@@ -67,11 +67,12 @@ GitHub Pages: <https://autocss-com.github.io/vue/>
   in the repo for easy re-enable.
 
 ### Vue-specific wiring (the gotchas)
-- **Mount node merged into `<app-container>`.** `index.html`'s mount element is
-  `<app-container id="app">` (the wrapper `<div id="app">` is dropped), and
-  `App.vue` renders the scaffold's **children** (a multi-root template). So
-  `<app-container>` is the real Holy-Grail grid root that AutoCSS's `layout.css`
-  styles — no `#app { display: contents }` shim is needed.
+- **Mount into the `<app-container>` element — no id hook.** `index.html`'s body
+  is just `<app-container></app-container>` (the `<div id="app">` and its `id` are
+  gone), and `src/main.js` mounts with `createApp(App).mount('app-container')`
+  (a tag selector, was `'#app'`). `App.vue` renders the scaffold's **children** (a
+  multi-root template), so `<app-container>` is the real Holy-Grail grid root that
+  AutoCSS's `layout.css` styles — no `#app { display: contents }` shim is needed.
 - **`vite.config.js` — `isCustomElement` (required).** Wrapped the Vue plugin as
   `vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('app-') } } })`.
   The template still contains `app-banner`, `app-logo`, `app-legal`, and
