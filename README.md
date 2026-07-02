@@ -60,6 +60,12 @@ GitHub Pages: <https://autocss-com.github.io/vue/>
   data-driven content-level elements (`h1`, tagline, `h2`, intro, `<table>`)
   placed **inside `<article>`**.
 
+### Native stylesheets commented out
+- The framework's own stylesheets are **commented out** so the remote AutoCSS
+  stylesheets are the sole source of styling: `import './style.css'` in
+  `src/main.js` and `import './App.css'` in `src/App.vue`. The CSS files are kept
+  in the repo for easy re-enable.
+
 ### Vue-specific wiring (the gotchas)
 - **Mount node merged into `<app-container>`.** `index.html`'s mount element is
   `<app-container id="app">` (the wrapper `<div id="app">` is dropped), and
