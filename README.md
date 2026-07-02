@@ -61,15 +61,17 @@ GitHub Pages: <https://autocss-com.github.io/vue/>
   placed **inside `<article>`**.
 
 ### Vue-specific wiring (the gotchas)
+- **Mount node merged into `<app-container>`.** `index.html`'s mount element is
+  `<app-container id="app">` (the wrapper `<div id="app">` is dropped), and
+  `App.vue` renders the scaffold's **children** (a multi-root template). So
+  `<app-container>` is the real Holy-Grail grid root that AutoCSS's `layout.css`
+  styles — no `#app { display: contents }` shim is needed.
 - **`vite.config.js` — `isCustomElement` (required).** Wrapped the Vue plugin as
   `vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('app-') } } })`.
-  Without it, Vue's template compiler treats `<app-container>`, `<app-logo>`,
-  etc. as Vue components and emits `[Vue warn]: Failed to resolve component`
-  errors; this makes Vue leave the `app-*` tags as native custom elements.
-- **`src/style.css` — `#app { display: contents }`.** Vue mounts into
-  `<div id="app">`; making that wrapper `display: contents` lets
-  `<app-container>` be the Holy-Grail grid root that AutoCSS's `layout.css`
-  styles.
+  The template still contains `app-banner`, `app-logo`, `app-legal`, and
+  `app-version`; without this, Vue tries to resolve them as components and emits
+  `[Vue warn]: Failed to resolve component`. It leaves any `app-*` tag as a
+  native custom element.
 - Static `checked` attributes on the "Layouts" checkbox and "System" radio work
   as-is in Vue templates.
 - Glyphs (`☼ ☾ ◐ ✖`) are written as HTML entities in the template.
