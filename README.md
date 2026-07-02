@@ -1,96 +1,39 @@
 # AutoCSS demo — Vue data layer
 
-A standard **Vite + Vue 3** instance (`<script setup>`) that renders its own
-sample data inside the **remote [AutoCSS](https://autocss.com) UI scaffold**. It
-is the Vue back-end reference for the AutoCSS remote-rendering demo: *have UI,
-bring your own data — one UI, many back-ends.*
+A standard **Vite + Vue 3** app that renders its own data inside the remote
+**[AutoCSS](https://autocss.com)** UI — *have UI, bring your own data.* The app
+ships the data; AutoCSS (loaded from `https://autocss.com`) is the whole UI.
 
-- **Data layer:** the app fetches `public/data/records.json` — the same JSON
-  shape the AutoCSS UI consumes (`[{ id, title, intro, items: [] }]`) — and
-  renders it as a table with loading/error states.
-- **AutoCSS attach (styles):** the page includes the default AutoCSS Holy-Grail
-  HTML scaffold and links the AutoCSS stylesheets remotely from
-  `https://autocss.com`. The app's own content-level elements live inside
-  `<article>`. (The AutoCSS JS runtime is **not** wired yet — styles only.)
+**Live:** <https://autocss-com.github.io/vue/>
 
-## Develop
+## Run
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+## Build & deploy
 
 ```bash
-npm run build   # outputs dist/ (base path /vue/)
+npm run build   # → dist/
 ```
 
-## Deploy
+Pushing to `main` auto-builds and deploys to GitHub Pages via
+`.github/workflows/deploy.yml`.
 
-On push to `main`, a GitHub Actions workflow builds and publishes `dist/` to
-GitHub Pages: <https://autocss-com.github.io/vue/>
+## Using AutoCSS in a Vue app
 
----
+Starting from a stock `npm create vite` Vue app, the whole integration is just a
+few small touches:
 
-## Changes from the default scaffold
+1. **Link the AutoCSS styles** — add the `https://autocss.com/assets/css/…`
+   stylesheets to `index.html`.
+2. **Make `<app-container>` the root** — put `<app-container></app-container>` in
+   `index.html` and mount into it with `createApp(App).mount('app-container')`.
+   `App.vue` renders the AutoCSS scaffold, with your content inside `<article>`.
+3. **Allow the `app-*` custom elements** — one line in `vite.config.js`:
+   `isCustomElement: (tag) => tag.startsWith('app-')`.
+4. **Bring your data** — fetch it (here `public/data/records.json`) and render.
 
-> Baseline = a fresh `npm create vite@latest -- --template vue` (Vite + Vue 3).
-> This is the **complete** list of what had to change to render the app's own
-> data and to drop it into the remote AutoCSS UI. Nothing else was modified, and
-> **no third-party libraries were added** (no router, no Pinia).
-
-### Data layer
-- **Added `public/data/records.json`** — the sample dataset (AutoCSS contract shape).
-- **Rewrote `src/App.vue`** — `<script setup>` with `ref`/`computed` and an
-  `onMounted` `fetch` of `` `${import.meta.env.BASE_URL}data/records.json` ``,
-  loading/error/ready states, and a `<table>` (columns from the item keys).
-  `import.meta.env.BASE_URL` keeps the fetch path correct under the `/vue/`
-  Pages subpath.
-
-### AutoCSS scaffold + remote styles
-- **`index.html`** — added the block of remote AutoCSS stylesheet `<link>`s
-  (`https://autocss.com/assets/css/*.css`) in the same `@layer`-cascade order as
-  `autocss/index.html` (`reset, fonts, color-scheme, color-theme-66ccff, layout,
-  inputs, media, typography, scrolling, a11y, forms, fallbacks, loading`;
-  `themes.css` + `transitions.css` left commented out to mirror the source).
-- **`src/App.vue`** — the `<template>` renders the default AutoCSS Holy-Grail
-  scaffold (`<app-container>` → `<app-banner>`, `<header>`, `<nav>`,
-  `<main><article>`, `<aside>`, `<footer>`, trailing `<app-banner>`), with the
-  data-driven content-level elements (`h1`, tagline, `h2`, intro, `<table>`)
-  placed **inside `<article>`**.
-
-### Native stylesheets commented out
-- The framework's own stylesheets are **commented out** so the remote AutoCSS
-  stylesheets are the sole source of styling: `import './style.css'` in
-  `src/main.js` and `import './App.css'` in `src/App.vue`. The CSS files are kept
-  in the repo for easy re-enable.
-
-### Vue-specific wiring (the gotchas)
-- **Mount into the `<app-container>` element — no id hook.** `index.html`'s body
-  is just `<app-container></app-container>` (the `<div id="app">` and its `id` are
-  gone), and `src/main.js` mounts with `createApp(App).mount('app-container')`
-  (a tag selector, was `'#app'`). `App.vue` renders the scaffold's **children** (a
-  multi-root template), so `<app-container>` is the real Holy-Grail grid root that
-  AutoCSS's `layout.css` styles — no `#app { display: contents }` shim is needed.
-- **`vite.config.js` — `isCustomElement` (required).** Wrapped the Vue plugin as
-  `vue({ template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('app-') } } })`.
-  The template still contains `app-banner`, `app-logo`, `app-legal`, and
-  `app-version`; without this, Vue tries to resolve them as components and emits
-  `[Vue warn]: Failed to resolve component`. It leaves any `app-*` tag as a
-  native custom element.
-- Static `checked` attributes on the "Layouts" checkbox and "System" radio work
-  as-is in Vue templates.
-- Glyphs (`☼ ☾ ◐ ✖`) are written as HTML entities in the template.
-
-### Build / GitHub Pages
-- **`vite.config.js`** — `base: '/vue/'` (matches the project Pages URL).
-- **Added `.github/workflows/deploy.yml`** — `npm ci` → `vite build` → deploy
-  `dist/` to Pages (triggers on push to `main`). Requires repo **Settings → Pages
-  → Source = GitHub Actions**.
-
-### Housekeeping
-- Removed the Vite + Vue starter demo (`HelloWorld.vue`, `src/components/`,
-  logos/assets, demo styles) and replaced `src/style.css` with a neutral base.
-- `package.json` name → `autocss-vue-demo`.
-- Appended a Node/Vite section to `.gitignore`.
+_(Full change history: [`progress/`](./progress).)_
