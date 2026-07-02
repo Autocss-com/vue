@@ -427,3 +427,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Node / Vite (AutoCSS demo)
+node_modules/
+dist/
+*.local
+.vite/
